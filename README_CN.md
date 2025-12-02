@@ -5,7 +5,7 @@
 [English](README.md)
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](LICENSE)
 [![TLS](https://img.shields.io/badge/TLS-1.3-green.svg)](https://tools.ietf.org/html/rfc8446)
 
 ## 为什么用它？
@@ -32,13 +32,13 @@
 ### 客户端 (macOS/Linux)
 
 ```bash
-bash <(curl -sL https:///install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/Gouryella/drip/refs/heads/main/scripts/install.sh)
 ```
 
 ### 服务端 (Linux)
 
 ```bash
-bash <(curl -sL https:///install-server.sh)
+bash <(curl -sL https://raw.githubusercontent.com/Gouryella/drip/refs/heads/main/scripts/install-server.sh)
 ```
 
 ## 使用方法
@@ -241,4 +241,4 @@ drip config show
 
 ## 开源协议
 
-MIT License - 详见 [LICENSE](LICENSE)
+BSD 3-Clause License - 详见 [LICENSE](LICENSE)

@@ -4,9 +4,9 @@ set -e
 # ============================================================================
 # Configuration
 # ============================================================================
-DOWNLOAD_BASE_URL="https://"
+GITHUB_REPO="Gouryella/drip"
 INSTALL_DIR="${INSTALL_DIR:-}"
-VERSION="${VERSION:-latest}"
+VERSION="${VERSION:-}"
 BINARY_NAME="drip"
 
 # Colors
@@ -269,27 +269,25 @@ check_dependencies() {
     print_success "$(msg deps_ok)"
 }
 
-get_remote_version() {
-    # Determine binary name based on OS and ARCH
-    local binary_file="drip-${OS}-${ARCH}"
-    if [[ "$OS" == "windows" ]]; then
-        binary_file="${binary_file}.exe"
-    fi
-
-    local download_url="${DOWNLOAD_BASE_URL}/${VERSION}/${binary_file}"
-    local tmp_file="/tmp/drip-check-$$"
+get_latest_version() {
+    # Get latest version from GitHub API
+    local api_url="https://api.github.com/repos/${GITHUB_REPO}/releases/latest"
+    local version=""
 
     if command -v curl &> /dev/null; then
-        curl -fsSL "$download_url" -o "$tmp_file" 2>/dev/null || return 1
+        version=$(curl -fsSL "$api_url" | grep '"tag_name":' | sed -E 's/.*"tag_name": *"([^"]+)".*/\1/' 2>/dev/null)
     else
-        wget -q "$download_url" -O "$tmp_file" 2>/dev/null || return 1
+        version=$(wget -qO- "$api_url" | grep '"tag_name":' | sed -E 's/.*"tag_name": *"([^"]+)".*/\1/' 2>/dev/null)
     fi
 
-    chmod +x "$tmp_file"
-    local remote_version=$("$tmp_file" version 2>/dev/null | awk '/Version:/ {print $2}' || echo "unknown")
-    rm -f "$tmp_file"
-    echo "$remote_version"
+    if [[ -z "$version" ]]; then
+        print_error "Failed to get latest version from GitHub"
+        exit 1
+    fi
+
+    echo "$version"
 }
+
 
 check_existing_install() {
     if command -v drip &> /dev/null; then
@@ -301,17 +299,13 @@ check_existing_install() {
 
         # Check remote version
         print_step "Checking for updates..."
-        local remote_version=$(get_remote_version)
+        local latest_version=$(get_latest_version)
 
-        if [[ "$remote_version" == "unknown" ]]; then
-            print_warning "Could not check remote version"
-            echo ""
-            read -p "$(msg update_now) [Y/n]: " update_choice < /dev/tty
-        elif [[ "$current_version" == "$remote_version" ]]; then
+        if [[ "$current_version" == "$latest_version" ]]; then
             print_success "Already up to date ($current_version)"
             exit 0
         else
-            print_info "Latest version: $remote_version"
+            print_info "Latest version: $latest_version"
             echo ""
             read -p "$(msg update_now) [Y/n]: " update_choice < /dev/tty
         fi
@@ -329,15 +323,20 @@ check_existing_install() {
 # Download and install
 # ============================================================================
 get_download_url() {
+    # Get latest version if not set
+    if [[ -z "$VERSION" ]]; then
+        VERSION=$(get_latest_version)
+    fi
+
     local binary_name
 
     if [[ "$OS" == "windows" ]]; then
-        binary_name="drip-windows-${ARCH}.exe"
+        binary_name="drip-${VERSION}-windows-${ARCH}.exe"
     else
-        binary_name="drip-${OS}-${ARCH}"
+        binary_name="drip-${VERSION}-${OS}-${ARCH}"
     fi
 
-    echo "${DOWNLOAD_BASE_URL}/${VERSION}/${binary_name}"
+    echo "https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/${binary_name}"
 }
 
 download_binary() {

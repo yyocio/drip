@@ -258,7 +258,7 @@ func (h *Handler) serveHomePage(w http.ResponseWriter, r *http.Request) {
 
     <h2>Quick Start</h2>
     <p>Install the client:</p>
-    <code>bash <(curl -fsSL https:///install.sh)</code>
+    <code>bash <(curl -fsSL https://raw.githubusercontent.com/Gouryella/drip/refs/heads/main/scripts/install.sh)</code>
 
     <p>Start a tunnel:</p>
 	<code>drip http 3000</code><br><br>

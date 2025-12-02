@@ -5,7 +5,7 @@ Self-hosted tunneling solution. Expose your localhost to the internet securely.
 [中文文档](README_CN.md)
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](LICENSE)
 [![TLS](https://img.shields.io/badge/TLS-1.3-green.svg)](https://tools.ietf.org/html/rfc8446)
 
 ## Why?
@@ -32,13 +32,13 @@ Self-hosted tunneling solution. Expose your localhost to the internet securely.
 ### Client (macOS/Linux)
 
 ```bash
-bash <(curl -sL https:///install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/Gouryella/drip/refs/heads/main/scripts/install.sh)
 ```
 
 ### Server (Linux)
 
 ```bash
-bash <(curl -sL https:///install-server.sh)
+bash <(curl -sL https://raw.githubusercontent.com/Gouryella/drip/refs/heads/main/scripts/install-server.sh)
 ```
 
 ## Usage
@@ -241,4 +241,4 @@ drip config show
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details
+BSD 3-Clause License - see [LICENSE](LICENSE) for details
