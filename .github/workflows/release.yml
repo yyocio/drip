@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -31,9 +29,10 @@ jobs:
       - name: Build for all platforms
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
-          COMMIT=$(git rev-parse --short=10 HEAD)
+          COMMIT=${{ github.sha }}
+          COMMIT_SHORT=${COMMIT:0:10}
           BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
-          LDFLAGS="-s -w -X main.Version=${VERSION} -X main.GitCommit=${COMMIT} -X main.BuildTime=${BUILD_TIME}"
+          LDFLAGS="-s -w -X main.Version=${VERSION} -X main.GitCommit=${COMMIT_SHORT} -X main.BuildTime=${BUILD_TIME}"
 
           # Linux amd64
           GOOS=linux GOARCH=amd64 go build -ldflags="${LDFLAGS}" -o drip-${VERSION}-linux-amd64 ./cmd/drip
