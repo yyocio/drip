@@ -1,0 +1,37 @@
+version: 2
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    main: ./cmd/drip
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - windows
+    goarch:
+      - "386"
+      - arm
+      - amd64
+      - arm64
+      - mips
+      - mipsle
+      - mips64
+      - mips64le
+    goarm:
+      - "6"
+      - "7"
+    gomips:
+      - hardfloat
+      - softfloat
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.Version={{ .Tag }} -X main.GitCommit={{ .Commit }} -X main.BuildTime={{ .Date }}
+
+archives:
+  - formats: [tar.gz]
+
+release:
+  prerelease: true
+  mode: replace
