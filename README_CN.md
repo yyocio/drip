@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://driptunnel.app/en/docs">English</a>
+  <a href="https://driptunnel.app/docs">English</a>
   <span> | </span>
   <a href="https://driptunnel.app/docs">中文文档</a>
 </p>
@@ -60,9 +60,9 @@ drip http 3000 -n myapp
 完整文档请访问 **[Docs](https://driptunnel.app/docs)**
 
 - [安装指南](https://driptunnel.app/docs/installation)
-- [客户端使用](https://driptunnel.app/docs/client)
-- [服务端部署](https://driptunnel.app/docs/server)
-- [配置参考](https://driptunnel.app/docs/configuration)
+- [基础使用](https://driptunnel.app/docs/basic-tunnels)
+- [服务端部署](https://driptunnel.app/docs/direct-mode)
+- [命令参考](https://driptunnel.app/docs/commands)
 
 ## 协议
 
