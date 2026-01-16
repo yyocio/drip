@@ -14,15 +14,22 @@ services:
       DOMAIN: ${DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL:-}
       CF_API_TOKEN: ${CF_API_TOKEN}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    mem_limit: 256m
+    mem_reservation: 64m
 
   drip-server:
     image: driptunnel/drip-server:${VERSION:-latest}
     container_name: drip-server
     restart: unless-stopped
-    ports:
-      - "20000-20100:20000-20100"
+    network_mode: host
     volumes:
       - ./config.yaml:/app/config.yaml:ro
+    environment:
+      GOMEMLIMIT: 256MiB
+    mem_limit: 512m
+    mem_reservation: 128m
 
 volumes:
   caddy-data:

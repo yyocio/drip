@@ -207,14 +207,6 @@ func (l *Listener) handleConnection(netConn net.Conn) {
 		l.connMu.Unlock()
 	})
 
-	// Check if TCP transport is allowed
-	if !l.IsTransportAllowed("tcp") {
-		l.logger.Warn("TCP transport not allowed, rejecting connection",
-			zap.String("remote_addr", netConn.RemoteAddr().String()),
-		)
-		return
-	}
-
 	// Handle TLS connections
 	if tlsConn, ok := netConn.(*tls.Conn); ok {
 		if err := tlsConn.SetReadDeadline(time.Now().Add(10 * time.Second)); err != nil {
@@ -279,6 +271,7 @@ func (l *Listener) handleConnection(netConn net.Conn) {
 
 	conn := NewConnection(netConn, l.authToken, l.manager, l.logger, l.portAlloc, l.domain, l.tunnelDomain, l.publicPort, l.httpHandler, l.groupManager, l.httpListener)
 	conn.SetAllowedTunnelTypes(l.allowedTunnelTypes)
+	conn.SetAllowedTransports(l.allowedTransports)
 
 	connID := netConn.RemoteAddr().String()
 	l.connMu.Lock()

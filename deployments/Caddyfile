@@ -21,7 +21,7 @@
 	}
 
 	# Reverse proxy to drip-server (plain TCP mode)
-	reverse_proxy drip-server:8443 {
+	reverse_proxy host.docker.internal:8443 {
 		# Pass original host header
 		header_up Host {host}
 		header_up X-Real-IP {remote_host}

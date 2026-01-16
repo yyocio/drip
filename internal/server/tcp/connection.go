@@ -61,6 +61,7 @@ type Connection struct {
 
 	// Server capabilities
 	allowedTunnelTypes []string
+	allowedTransports  []string
 }
 
 // NewConnection creates a new connection handler
@@ -111,6 +112,12 @@ func (c *Connection) Handle() error {
 	if isHTTP {
 		c.logger.Info("Detected HTTP request on TCP port, handling as HTTP")
 		return c.handleHTTPRequest(reader)
+	}
+
+	// Check if TCP transport is allowed (only for Drip protocol connections, not HTTP)
+	if !c.isTransportAllowed("tcp") {
+		c.logger.Warn("TCP transport not allowed, rejecting Drip protocol connection")
+		return fmt.Errorf("TCP transport not allowed")
 	}
 
 	frame, err := protocol.ReadFrame(reader)
@@ -765,6 +772,24 @@ func (c *Connection) sendDataConnectError(code, message string) {
 // SetAllowedTunnelTypes sets the allowed tunnel types for this connection
 func (c *Connection) SetAllowedTunnelTypes(types []string) {
 	c.allowedTunnelTypes = types
+}
+
+// SetAllowedTransports sets the allowed transports for this connection
+func (c *Connection) SetAllowedTransports(transports []string) {
+	c.allowedTransports = transports
+}
+
+// isTransportAllowed checks if a transport is allowed
+func (c *Connection) isTransportAllowed(transport string) bool {
+	if len(c.allowedTransports) == 0 {
+		return true
+	}
+	for _, t := range c.allowedTransports {
+		if strings.EqualFold(t, transport) {
+			return true
+		}
+	}
+	return false
 }
 
 // isTunnelTypeAllowed checks if a tunnel type is allowed
