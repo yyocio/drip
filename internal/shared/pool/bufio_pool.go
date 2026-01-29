@@ -2,6 +2,7 @@ package pool
 
 import (
 	"bufio"
+	"io"
 	"sync"
 )
 
@@ -20,11 +21,9 @@ var BufioWriterPool = sync.Pool{
 }
 
 // GetReader gets a bufio.Reader from the pool and resets it to read from r.
-func GetReader(r interface{}) *bufio.Reader {
+func GetReader(r io.Reader) *bufio.Reader {
 	reader := BufioReaderPool.Get().(*bufio.Reader)
-	if resetter, ok := r.(interface{ Reset(interface{}) }); ok {
-		resetter.Reset(r)
-	}
+	reader.Reset(r)
 	return reader
 }
 
@@ -34,11 +33,9 @@ func PutReader(reader *bufio.Reader) {
 }
 
 // GetWriter gets a bufio.Writer from the pool and resets it to write to w.
-func GetWriter(w interface{}) *bufio.Writer {
+func GetWriter(w io.Writer) *bufio.Writer {
 	writer := BufioWriterPool.Get().(*bufio.Writer)
-	if resetter, ok := w.(interface{ Reset(interface{}) }); ok {
-		resetter.Reset(w)
-	}
+	writer.Reset(w)
 	return writer
 }
 
