@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
 	"strconv"
@@ -247,10 +248,11 @@ func (c *Connection) Handle() error {
 			burstMultiplier = 2.0
 		}
 		c.tunnelConn.SetBandwidthWithBurst(effectiveBandwidth, burstMultiplier)
+		burst := limiterBurst(effectiveBandwidth, burstMultiplier)
 
 		limiter := qos.NewLimiter(qos.Config{
 			Bandwidth: effectiveBandwidth,
-			Burst:     int(float64(effectiveBandwidth) * burstMultiplier),
+			Burst:     burst,
 		})
 		c.tunnelConn.SetLimiter(limiter)
 
@@ -262,6 +264,7 @@ func (c *Connection) Handle() error {
 			zap.String("subdomain", c.subdomain),
 			zap.Int64("bandwidth_bytes_sec", effectiveBandwidth),
 			zap.Float64("burst_multiplier", burstMultiplier),
+			zap.Int("burst_bytes", burst),
 			zap.String("source", source),
 		)
 	}
@@ -526,4 +529,29 @@ func (c *Connection) SetBandwidthConfig(bandwidth int64, burstMultiplier float64
 		burstMultiplier = 2.0
 	}
 	c.burstMultiplier = burstMultiplier
+}
+
+func limiterBurst(bandwidth int64, burstMultiplier float64) int {
+	if bandwidth <= 0 {
+		return 0
+	}
+
+	if burstMultiplier <= 0 || math.IsNaN(burstMultiplier) || math.IsInf(burstMultiplier, 0) {
+		burstMultiplier = 2.0
+	}
+
+	maxBurst := int64(^uint(0) >> 1)
+	rawBurst := float64(bandwidth) * burstMultiplier
+	if math.IsNaN(rawBurst) || rawBurst <= 0 {
+		return 1
+	}
+	if rawBurst >= float64(maxBurst) {
+		return int(maxBurst)
+	}
+
+	burst := int(rawBurst)
+	if burst <= 0 {
+		return 1
+	}
+	return burst
 }
