@@ -19,6 +19,7 @@ import (
 	"drip/internal/server/tunnel"
 	"drip/internal/shared/constants"
 	"drip/internal/shared/httputil"
+	"drip/internal/shared/netutil"
 	"drip/internal/shared/protocol"
 	"drip/internal/shared/qos"
 
@@ -37,6 +38,7 @@ type ConnectionConfig struct {
 	HTTPHandler  http.Handler
 	GroupManager *ConnectionGroupManager
 	HTTPListener *connQueueListener
+	RemoteIP     string
 }
 
 type Connection struct {
@@ -73,6 +75,7 @@ type Connection struct {
 	allowedTransports  []string
 	bandwidth          int64
 	burstMultiplier    float64
+	remoteIP           string
 }
 
 // NewConnection creates a new connection handler
@@ -97,6 +100,7 @@ func NewConnection(cfg ConnectionConfig) *Connection {
 		groupManager:     cfg.GroupManager,
 		httpListener:     cfg.HTTPListener,
 		lifecycleManager: NewConnectionLifecycleManager(stopCh, cancel, cfg.Logger),
+		remoteIP:         cfg.RemoteIP,
 	}
 
 	// Set connection in lifecycle manager
@@ -189,6 +193,11 @@ func (c *Connection) Handle() error {
 		c.logger,
 	)
 
+	remoteIP := c.remoteIP
+	if remoteIP == "" && c.conn != nil {
+		remoteIP = netutil.ExtractIP(c.conn.RemoteAddr().String())
+	}
+
 	regReq := &RegistrationRequest{
 		TunnelType:       req.TunnelType,
 		CustomSubdomain:  req.CustomSubdomain,
@@ -198,6 +207,7 @@ func (c *Connection) Handle() error {
 		IPAccess:         req.IPAccess,
 		ProxyAuth:        req.ProxyAuth,
 		LocalPort:        req.LocalPort,
+		RemoteIP:         remoteIP,
 	}
 
 	result, err := regHandler.Register(regReq)
